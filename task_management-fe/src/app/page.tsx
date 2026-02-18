@@ -1,3 +1,5 @@
-export default function Home() {
-  return <>In progress</>;
-}
+const Home = () => {
+  return <>Tasks</>;
+};
+
+export default Home;
