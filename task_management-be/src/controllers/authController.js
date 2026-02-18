@@ -1,7 +1,6 @@
 const prisma = require("../config/db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { type } = require("node:os");
 
 const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -19,7 +18,7 @@ const register = async (req, res, next) => {
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      return res.status(409).json({ message: "Email already esists!" });
+      return res.status(409).json({ message: "Email already exists!" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -30,7 +29,6 @@ const register = async (req, res, next) => {
 
     res.status(201).json({
       message: "User registered successfully",
-      user: { id: user.id, name: user.name, email: user.email },
     });
   } catch (err) {
     next(err);
