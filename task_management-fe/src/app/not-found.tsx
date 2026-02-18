@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 
 const NotFound = () => {
   return (
-    <div className="h-dvh w-full flex flex-col justify-center items-center font-sans gap-2">
+    <div className="h-full w-full flex flex-col justify-center items-center font-sans gap-2">
       <div className="text-9xl font-bold">404</div>
       <div className="text-4xl text-muted-foreground font-bold">
         Oops, This Page Not Found!

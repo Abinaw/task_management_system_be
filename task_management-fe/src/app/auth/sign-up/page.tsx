@@ -1,24 +1,27 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import * as Yup from "yup";
 import { FormikHelpers, useFormik } from "formik";
 import { useRouter } from "next/navigation";
 import { Loader } from "lucide-react";
+import { TextField } from "@/components/common/text-filed";
+import { apiAuthClient } from "@/lib/api";
+import { AxiosError } from "axios";
+import { toast } from "sonner";
 
 type SignupValues = {
-  username: string;
+  name: string;
   email: string;
   password: string;
   confirmPassword: string;
 };
 
 const validationSchema = Yup.object({
-  username: Yup.string()
-    .min(3, "Username must be at least 3 characters")
-    .required("Username is required"),
+  name: Yup.string()
+    .min(3, "name must be at least 3 characters")
+    .required("name is required"),
   email: Yup.string()
     .email("Invalid email address")
     .required("Email is required"),
@@ -44,17 +47,23 @@ const SignUp = () => {
     values: SignupValues,
     { setSubmitting }: FormikHelpers<SignupValues>,
   ) => {
-    console.log("values : ", values);
-
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    setSubmitting(false);
-    router.push("/auth/sign-in");
+    try {
+      await apiAuthClient.post("/api/v1/auth/register", values).then((res) => {
+        setSubmitting(false);
+        router.push("/auth/sign-in");
+      });
+    } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
+      const errorMessage =
+        err.response?.data?.message || "Something went wrong";
+      toast.error(errorMessage);
+      setSubmitting(false);
+    }
   };
 
   const createForm = useFormik({
     initialValues: {
-      username: "",
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -64,72 +73,60 @@ const SignUp = () => {
     isInitialValid: true,
   });
 
-  const { errors, isSubmitting, isValid, touched, handleSubmit } = createForm;
+  const {
+    errors,
+    isSubmitting,
+    isValid,
+    touched,
+    handleSubmit,
+    getFieldProps,
+  } = createForm;
 
   return (
-    <div className="h-screen w-full flex flex-col justify-center items-center font-sans gap-2">
+    <div className="h-full w-full flex flex-col justify-center items-center font-sans gap-2">
       <div className="p-10 border rounded-xl bg-sidebar shadow-sm">
         <form onSubmit={handleSubmit}>
           <div className="font-bold text-2xl">Create your account</div>
           <div className="text-sm text-muted-foreground">
             Enter your information to create your account
           </div>
-          <div className="mt-5 flex-col flex gap-3">
-            <span className="font-medium">Username</span>
-            <span>
-              <Input
-                type="text"
-                placeholder="Enter your username"
-                {...createForm.getFieldProps("username")}
-              />
-            </span>
-            {touched.username && errors.username && (
-              <p className="text-xs text-red-500">{errors.username}</p>
-            )}
+          <div className="space-y-4 mt-5">
+            <TextField
+              label="Name"
+              type="text"
+              placeholder="John Doe"
+              {...getFieldProps("name")}
+              errors={touched.name && errors.name ? errors.name : ""}
+            />
+            <TextField
+              label="Email"
+              type="email"
+              placeholder="john@example.com"
+              {...getFieldProps("email")}
+              errors={touched.email && errors.email ? errors.email : ""}
+            />
+            <TextField
+              label="Password"
+              type="password"
+              placeholder="Enter your password"
+              {...getFieldProps("password")}
+              errors={
+                touched.password && errors.password ? errors.password : ""
+              }
+            />
+            <TextField
+              label="Confirm Password"
+              type="password"
+              placeholder="Re-enter your password"
+              {...getFieldProps("confirmPassword")}
+              errors={
+                touched.confirmPassword && errors.confirmPassword
+                  ? errors.confirmPassword
+                  : ""
+              }
+            />
           </div>
-          <div className="mt-5 flex-col flex gap-3">
-            <span className="font-medium">Email</span>
-            <span>
-              <Input
-                type="email"
-                placeholder="Enter your mail"
-                {...createForm.getFieldProps("email")}
-              />
-            </span>
-            {touched.email && errors.email && (
-              <p className="text-xs text-red-500">{errors.email}</p>
-            )}
-          </div>
-          <div className="flex flex-col gap-3">
-            <div className="mt-5 flex justify-between">
-              <span className="font-medium">Password</span>
-            </div>
-            <span>
-              <Input
-                type="password"
-                placeholder="Enter your password"
-                {...createForm.getFieldProps("password")}
-              />
-            </span>
-            {touched.password && errors.password && (
-              <p className="text-xs text-red-500">{errors.password}</p>
-            )}
-          </div>
-          <div className="flex flex-col gap-3">
-            <div className="mt-5 flex justify-between">
-              <span className="font-medium">Confirm Password</span>
-            </div>
-            <span>
-              <Input
-                type="password"
-                placeholder="Enter your password"
-                {...createForm.getFieldProps("confirmPassword")}
-              />
-            </span>
-            {touched.confirmPassword && errors.confirmPassword && (
-              <p className="text-xs text-red-500">{errors.confirmPassword}</p>
-            )}
-          </div>
+
           <div className="mt-6">
             <Button
               size={"lg"}
@@ -143,8 +140,8 @@ const SignUp = () => {
           </div>
         </form>
 
-        <p className="w-full text-center mt-2 text-sm">
-          Already have an account?{" "}
+        <p className="w-full text-center mt-2 text-sm gap-x-2 flex items-center justify-center">
+          Already have an account?
           <Link href="/auth/sign-in" className="underline hover:font-medium">
             Signin
           </Link>
