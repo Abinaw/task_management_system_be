@@ -10,7 +10,8 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "../ui/button";
 import Cookies from "js-cookie";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 type User = {
   id: number;
@@ -19,9 +20,21 @@ type User = {
 };
 
 export const Header = () => {
-  const userCookie = Cookies.get("user");
+  const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
 
-  const user: User | null = userCookie ? JSON.parse(userCookie) : null;
+  useEffect(() => {
+    const userCookie = Cookies.get("user");
+    if (userCookie) {
+      setUser(JSON.parse(userCookie));
+    }
+  }, []);
+
+  const handleLogout = () => {
+    Cookies.remove("token");
+    Cookies.remove("user");
+    router.push("/auth/sign-in");
+  };
 
   return (
     <div className="h-13 w-full bg-sidebar-accent border-b flex items-center justify-between px-2">
@@ -52,9 +65,7 @@ export const Header = () => {
           <Button
             variant={"destructive"}
             onClick={() => {
-              Cookies.remove("token");
-              Cookies.remove("user");
-              redirect("/auth/sign-in");
+              handleLogout();
             }}
             className="w-full mt-4"
           >
