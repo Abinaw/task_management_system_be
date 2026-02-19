@@ -1,11 +1,6 @@
 "use client";
 import { TaskForm } from "@/components/task/task-form";
-import {
-  PaginationMeta,
-  TableData,
-  Task,
-  TaskTable,
-} from "@/components/task/task-table";
+import { TableData, TaskTable } from "@/components/task/task-table";
 import { apiClient } from "@/lib/api";
 import { AxiosError } from "axios";
 import { useState } from "react";

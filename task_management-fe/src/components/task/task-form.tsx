@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FormikHelpers, useFormik } from "formik";
+import * as Yup from "yup";
 
 type TaskForm = {
   title: string;
@@ -49,6 +50,11 @@ export const TaskForm = ({
   const [open, setOpen] = useState(false);
 
   const Unassigned = "Unassigned";
+
+  const validationSchema = Yup.object({
+    title: Yup.string().required("Title is required"),
+    description: Yup.string().required("Description is required"),
+  });
 
   const createOrUpdateTask = async (
     values: TaskForm,
@@ -89,7 +95,7 @@ export const TaskForm = ({
       priority: Priority.LOW,
     },
     onSubmit: createOrUpdateTask,
-    // TODO - validate inputs
+    validationSchema,
     isInitialValid: true,
   });
 
@@ -251,7 +257,7 @@ export const TaskForm = ({
             </DialogClose>
             {/* TODO - Use isValid for disbled with isSubmitting */}
             <Button
-              disabled={isSubmitting}
+              disabled={isSubmitting && !isValid}
               type="submit"
               onClick={() => handleSubmit()}
             >
