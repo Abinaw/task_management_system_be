@@ -116,9 +116,7 @@ export const TaskTable = ({
       cell: ({ row }) => {
         const description = row.getValue("description");
 
-        return (
-          <div className="max-w-[180px] truncate">{description as string}</div>
-        );
+        return <div className="max-w-45 truncate">{description as string}</div>;
       },
     },
     {

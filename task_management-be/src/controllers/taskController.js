@@ -37,12 +37,12 @@ const getTasks = async (req, res, next) => {
 
     const [tasks, total] = await prisma.$transaction([
       prisma.task.findMany({
-        orderBy: { createdAt: "desc" },
+        orderBy: { updatedAt: "desc" },
         skip,
         take: size,
         include: {
           user: {
-            select: { id: true, name: true, email: true }, // show who task is assigned to
+            select: { id: true, name: true, email: true },
           },
         },
       }),
@@ -130,4 +130,55 @@ const deleteTask = async (req, res, next) => {
   }
 };
 
-module.exports = { getTasks, createTask, updateTask, deleteTask };
+const filterTask = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const size = parseInt(req.query.size) || 10;
+    const skip = (page - 1) * size;
+
+    const { priority, status } = req.query;
+
+    const statusFilter = status
+      ? status.split(",").map((s) => s.trim())
+      : undefined;
+    const priorityFilter = priority
+      ? priority.split(",").map((p) => p.trim())
+      : undefined;
+
+    const where = {
+      ...(statusFilter && { status: { in: statusFilter } }),
+      ...(priorityFilter && { priority: { in: priorityFilter } }),
+    };
+
+    const [tasks, total] = await prisma.$transaction([
+      prisma.task.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: size,
+        include: {
+          user: {
+            select: { id: true, name: true, email: true },
+          },
+        },
+      }),
+      prisma.task.count({ where }),
+    ]);
+
+    res.status(200).json({
+      tasks,
+      pagination: {
+        total,
+        page,
+        size,
+        totalPages: Math.ceil(total / size),
+        hasNextPage: page < Math.ceil(total / size),
+        hasPrevPage: page > 1,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { getTasks, createTask, updateTask, deleteTask, filterTask };
