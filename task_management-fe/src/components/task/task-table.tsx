@@ -2,13 +2,10 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "../common/data-table";
 import { Badge } from "../ui/badge";
-import { Pencil, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { apiClient } from "@/lib/api";
-import { toast } from "sonner";
-import { AxiosError } from "axios";
 import { DeleteTask } from "./delete-task";
 import { TaskForm } from "./task-form";
+import Loading from "../common/loading";
 
 export enum Status {
   TODO = "TODO",
@@ -185,7 +182,7 @@ export const TaskTable = ({
       <div className="h-full">
         {loading ? (
           <div className="size-full flex items-center justify-center">
-            Loading
+            <Loading></Loading>
           </div>
         ) : (
           <DataTable
