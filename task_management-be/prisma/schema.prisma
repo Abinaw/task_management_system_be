@@ -26,6 +26,11 @@ model Task {
   user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
+  @@index([userId])                
+  @@index([status])                
+  @@index([priority])              
+  @@index([status, priority]) 
 }
 
 enum Status {
