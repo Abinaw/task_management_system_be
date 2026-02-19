@@ -1,15 +1,20 @@
 const prisma = require("../config/db");
+const { NotFoundException } = require("../errors/AppError");
 
 const createTask = async (req, res, next) => {
   try {
     const { title, description, status, priority, userId } = req.body;
-    debugger;
+
+    if (!title || !description || !status || !priority) {
+      throw new BadRequestException("All fields are required");
+    }
+
     if (userId) {
       const userExists = await prisma.user.findUnique({
         where: { id: parseInt(userId) },
       });
       if (!userExists) {
-        return res.status(404).json({ message: "Assigned user not found" });
+        throw new NotFoundException("Assigned user not found");
       }
     }
 
@@ -74,7 +79,7 @@ const updateTask = async (req, res, next) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ message: "Task not found" });
+      throw new NotFoundException("Task not found");
     }
 
     if (userId) {
@@ -82,7 +87,7 @@ const updateTask = async (req, res, next) => {
         where: { id: parseInt(userId) },
       });
       if (!userExists) {
-        return res.status(404).json({ message: "Assigned user not found" });
+        throw new NotFoundException("Assigned user not found");
       }
     }
 
@@ -119,7 +124,7 @@ const deleteTask = async (req, res, next) => {
     });
 
     if (!existing) {
-      return res.status(404).json({ message: "Task not found" });
+      throw new NotFoundException("Task not found");
     }
 
     await prisma.task.delete({ where: { id: parseInt(id) } });

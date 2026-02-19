@@ -1,10 +1,11 @@
 const jwt = require("jsonwebtoken");
+const { UnauthorizedException } = require("../errors/AppError");
 
 const protect = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Unauthorized, no token" });
+    throw new UnauthorizedException("Unauthorized, no token");
   }
 
   const token = authHeader.split(" ")[1];
@@ -14,7 +15,7 @@ const protect = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (err) {
-    return res.status(401).json({ message: "Unauthorized, invalid token" });
+    throw new UnauthorizedException("Unauthorized, invalid token");
   }
 };
 

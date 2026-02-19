@@ -3,6 +3,7 @@ const cors = require("cors");
 const app = express();
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("../src/config/swagger");
+const { errorHandler, notFound } = require("./middleware/errorMiddleware");
 
 app.use(
   cors({
@@ -22,5 +23,8 @@ app.use("/api/v1/tasks", taskRoutes);
 app.use("/api/v1/users", userRoutes);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+app.use(notFound);
+app.use(errorHandler);
 
 module.exports = app;
