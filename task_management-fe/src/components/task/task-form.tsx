@@ -36,6 +36,14 @@ type TaskForm = {
   priority: Priority;
 };
 
+const intialValues = {
+  title: "",
+  description: "",
+  userId: null,
+  status: Status.TODO,
+  priority: Priority.LOW,
+};
+
 export const TaskForm = ({
   data,
   isUpdate,
@@ -87,13 +95,7 @@ export const TaskForm = ({
   };
 
   const taskForm = useFormik<TaskForm>({
-    initialValues: {
-      title: "",
-      description: "",
-      userId: null,
-      status: Status.TODO,
-      priority: Priority.LOW,
-    },
+    initialValues: intialValues,
     onSubmit: createOrUpdateTask,
     validationSchema,
     isInitialValid: true,
@@ -109,13 +111,20 @@ export const TaskForm = ({
     values,
     setFieldValue,
     handleSubmit,
+    resetForm,
   } = taskForm;
 
   useEffect(() => {
+    if (!open) return;
+
     getAllUsers();
 
-    if (isUpdate) setValues(data as Task);
-  }, []);
+    if (isUpdate) {
+      setValues(data as Task);
+    } else {
+      resetForm({ values: intialValues });
+    }
+  }, [open]);
 
   const getAllUsers = async () => {
     setIsUserFetching(true);
