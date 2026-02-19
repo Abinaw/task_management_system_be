@@ -12,7 +12,17 @@ import { Button } from "../ui/button";
 import Cookies from "js-cookie";
 import { redirect } from "next/navigation";
 
+type User = {
+  id: number;
+  email: string;
+  name: string;
+};
+
 export const Header = () => {
+  const userCookie = Cookies.get("user");
+
+  const user: User | null = userCookie ? JSON.parse(userCookie) : null;
+
   return (
     <div className="h-13 w-full bg-sidebar-accent border-b flex items-center justify-between px-2">
       <div className="flex items-center gap-2">
@@ -30,18 +40,20 @@ export const Header = () => {
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="outline" className="max-w-23 overflow-hidden">
-            <span className="block truncate">username</span> <ChevronDown />
+            <span className="block truncate capitalize">{user?.name}</span>{" "}
+            <ChevronDown />
           </Button>
         </PopoverTrigger>
         <PopoverContent>
           <PopoverHeader>
-            <PopoverTitle>username</PopoverTitle>
-            <PopoverDescription>email</PopoverDescription>
+            <PopoverTitle className="capitalize">{user?.name}</PopoverTitle>
+            <PopoverDescription>{user?.email}</PopoverDescription>
           </PopoverHeader>
           <Button
             variant={"destructive"}
             onClick={() => {
               Cookies.remove("token");
+              Cookies.remove("user");
               redirect("/auth/sign-in");
             }}
             className="w-full mt-4"

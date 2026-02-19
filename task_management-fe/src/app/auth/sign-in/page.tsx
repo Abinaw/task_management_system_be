@@ -34,6 +34,7 @@ const SignIn = () => {
       await apiAuthClient.post("/api/v1/auth/login", values).then((res) => {
         const { token, user } = res.data;
         Cookies.set("token", token);
+        Cookies.set("user", JSON.stringify(user));
         setSubmitting(false);
         router.push("/");
       });
