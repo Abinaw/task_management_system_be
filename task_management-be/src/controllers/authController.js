@@ -27,7 +27,9 @@ const register = async (req, res, next) => {
       throw new BadRequestException("Password does not match!");
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+    });
     if (existingUser) {
       console.error("Email already in use");
       throw new ConflictException("Email already in use");
@@ -36,7 +38,7 @@ const register = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
-      data: { name, email, password: hashedPassword },
+      data: { name, email: email.toLowerCase(), password: hashedPassword },
     });
 
     res.status(201).json({
