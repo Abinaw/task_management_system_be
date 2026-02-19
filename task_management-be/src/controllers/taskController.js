@@ -6,6 +6,7 @@ const createTask = async (req, res, next) => {
     const { title, description, status, priority, userId } = req.body;
 
     if (!title || !description || !status || !priority) {
+      console.error("All fields are required");
       throw new BadRequestException("All fields are required");
     }
 
@@ -14,6 +15,7 @@ const createTask = async (req, res, next) => {
         where: { id: parseInt(userId) },
       });
       if (!userExists) {
+        console.error("Assigned user not found");
         throw new NotFoundException("Assigned user not found");
       }
     }
@@ -79,6 +81,7 @@ const updateTask = async (req, res, next) => {
     });
 
     if (!existing) {
+      console.error("Task not found");
       throw new NotFoundException("Task not found");
     }
 
@@ -87,6 +90,7 @@ const updateTask = async (req, res, next) => {
         where: { id: parseInt(userId) },
       });
       if (!userExists) {
+        console.error("Assigned user not found");
         throw new NotFoundException("Assigned user not found");
       }
     }
@@ -124,6 +128,7 @@ const deleteTask = async (req, res, next) => {
     });
 
     if (!existing) {
+      console.error("Task not found");
       throw new NotFoundException("Task not found");
     }
 

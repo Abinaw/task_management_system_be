@@ -5,6 +5,7 @@ const {
   ConflictException,
   BadRequestException,
 } = require("../errors/AppError");
+const console = require("node:console");
 
 const generateToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -17,15 +18,18 @@ const register = async (req, res, next) => {
     const { name, email, password, confirmPassword } = req.body;
 
     if (!name || !email || !password || !confirmPassword) {
+      console.error("All fields are required");
       throw new BadRequestException("All fields are required");
     }
 
     if (!(password === confirmPassword)) {
+      console.error("Password does not match!");
       throw new BadRequestException("Password does not match!");
     }
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
+      console.error("Email already in use");
       throw new ConflictException("Email already in use");
     }
 
@@ -49,11 +53,13 @@ const login = async (req, res, next) => {
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
+      console.error("Invalid email or password");
       throw new BadRequestException("Invalid email or password");
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      console.error("Invalid email or password");
       throw new BadRequestException("Invalid email or password");
     }
 
